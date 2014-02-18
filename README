@@ -1,10 +1,14 @@
 This bundle of code is designed to scrape Wizards of the Coast's Magic: the
 Gathering card database at 'http://gatherer.wizards.com' and build a SQLite
-database with all of the card information contained in it.  There are a couple
-of places in the code where it is assumed that some prior set up has occurred
-like the existence of an SQL database with certain tables that have certain
-columns or the existence of a folder at some specified path.  I will be adding
-to this repository so that these things are included in the code and this
-package will be come more self-contained. 
+database with all of the card information contained in it.  First run initialize_databse.py 
+to create the database with the appropriate tables.  Next run gather_card_data.py
+to extract all of the data.  This takes a while because each cards page has
+to be opened up one at a time.  Finally run input_to_database.py to input
+the gathered data into the database.
+
+I have not thought much yet about what will happen if this process is
+interrupted and you attempt to begin it again.  Working through this will probably
+also solve the problem of how to update the database when new cards are released.
+This will be for the near future!
 
 Non built-in modules required are: bs4, sqlite3.
