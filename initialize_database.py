@@ -1,22 +1,25 @@
+'''Creates the database where the card data from gatherer will eventually be
+input.  Initializes it with an appropriate collection of tables.'''
+
 import sqlite3
 
-database_connection = sqlite3.connect('./mtg_gatherer.db')
-c = database_connection.cursor()
+DATABASE_CONNECTION = sqlite3.connect('./mtg_gatherer.db')
+CURSOR = DATABASE_CONNECTION.cursor()
 
 try:
-    c.execute('''CREATE TABLE sets (
+    CURSOR.execute('''CREATE TABLE sets (
                  name VARCHAR(30) PRIMARY KEY);''')
 except sqlite3.OperationalError as the_error:
     print('Table \'sets\' already exists?')
 
 try:
-    c.execute('''CREATE TABLE artists (
+    CURSOR.execute('''CREATE TABLE artists (
                  name VARCHAR(30) PRIMARY KEY);''')
 except sqlite3.OperationalError:
     print('Table \'artists\' already exists?')
 
 try:
-    c.execute('''CREATE TABLE cards (
+    CURSOR.execute('''CREATE TABLE cards (
                  name VARCHAR(30) PRIMARY KEY,
                  mana_cost VARCHAR(10),
                  cmc INTEGER,
@@ -30,7 +33,7 @@ except sqlite3.OperationalError:
     print('Table \'cards\' already exists?')
 
 try:
-    c.execute('''CREATE TABLE printings (
+    CURSOR.execute('''CREATE TABLE printings (
                  multiverse_id INTEGER PRIMARY KEY,
                  name VARCHAR(25),
                  mtg_set VARCHAR(30),
@@ -45,3 +48,6 @@ try:
                      REFERENCES sets (name));''')
 except sqlite3.OperationalError:
     print('Table \'printings\' already exists?')
+
+
+DATABASE_CONNECTION.close()
