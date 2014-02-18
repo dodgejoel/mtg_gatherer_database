@@ -5,7 +5,7 @@ desktop each file will be named with the so-called multiverse_id.  Another
 function can be called to input this data into an SQL database.  '''
 
 import sqlite3, bs4
-import re, urllib.request, urllib.parse, queue, threading, pickle
+import re, urllib.request, urllib.parse, queue, threading, pickle, os
 import time
 
 class MyQueue(queue.Queue):
@@ -94,10 +94,10 @@ class WorkerClass(threading.Thread):
                 self.boss.put((priority, func, arg))
                 self.stop_routine()
                 print('URLError', error.reason)
-            except OSError:
+            except OSError as e:
                 self.boss.put((priority, func, arg))
                 self.stop_routine()
-                print('OSERRor')
+                print('OSERRor', e.reason)
             except queue.Empty:
                 self.stop_routine()
         self.boss.worker_done()
@@ -110,7 +110,7 @@ def card_data_getter(self, multiverse_id):
     multiverse_id passsed as an argument.  '''
 
     card_dict = get_card_dict('http://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=%s'% multiverse_id)
-    with open('/Users/dodgejoel/Desktop/card_data/%s' % multiverse_id, 'wb') as card_file:
+    with open('./.raw_card_data/%s' % multiverse_id, 'wb') as card_file:
         pick = pickle.Pickler(card_file)
         pick.dump(card_dict)
 
@@ -211,7 +211,7 @@ def check_for_new_sets():
     for item in soup.find_all('select')[1].find_all('option'):
         if item.string != None:
             set_choices.append(item.string)
-    init_db_connection = sqlite3.connect('/Users/dodgejoel/temp_mtg.db')
+    init_db_connection = sqlite3.connect('./mtg_gatherer.db')
     init_db_cursor = init_db_connection.cursor()
     known_sets = [item[0] for item in init_db_cursor.execute('''SELECT name
                                                                 FROM sets;''')]
@@ -222,10 +222,11 @@ def check_for_new_sets():
 
 if __name__ == '__main__':
     THE_QUEUE = MyQueue(WorkerClass)
+    os.makedirs('./.raw_card_data', exist_ok=True)
 
     for entry in ['Born of the Gods', 'Zendikar',
                             'Worldwake', 'Theros', 'Innistrad']:
-        set_db_connection = sqlite3.connect('/Users/dodgejoel/temp_mtg.db')
+        set_db_connection = sqlite3.connect('./mtg_gatherer.db')
         set_db_cursor = set_db_connection.cursor()
         set_db_cursor.execute('''INSERT OR IGNORE INTO sets
                                  VALUES (?);''', (entry, ))

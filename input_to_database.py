@@ -21,7 +21,7 @@ def get_colors(mana_cost):
 def db_entry(path_to_folder):
     '''This function is in charge of all the action for this module.'''
 
-    db_connection = sqlite3.connect('/Users/dodgejoel/temp_mtg.db')
+    db_connection = sqlite3.connect('./mtg_gatherer.db')
     db_cursor = db_connection.cursor()
     for file_name in os.listdir(path_to_folder):
         puck = pickle.Unpickler(open(path_to_folder + file_name, 'rb'))
@@ -36,6 +36,8 @@ def db_entry(path_to_folder):
         conv_mana_cost = card_dict.get('Converted Mana Cost:', 0)
         power, toughness = [i.strip() for i in
                             card_dict.get('P/T:', 'NULL/NULL').split('/')]
+        if (power, toughness) == ('NULL', 'NULL'):
+            power, toughness = None, None
         flavor = card_dict.get('Flavor Text:')
         rules = card_dict.get('Card Text:')
         #unpacking the type-subtype data is more complicated because not
@@ -61,15 +63,15 @@ def db_entry(path_to_folder):
         db_cursor.execute('''INSERT OR IGNORE INTO cards
                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);''',
                              cards_tuple)
-        db_cursor.execute('''INSERT OR IGNORE INTO artists VALUES (?);''',
+        db_cursor.execute('''INSERT OR IGNORE INTO artists
+                             VALUES (?);''',
                              (artist_name, ))
-        db_cursor.execute('''INSERT OR IGNORE INTO printing
+        db_cursor.execute('''INSERT OR IGNORE INTO printings
                              VALUES (?, ?, ?, ?, ?, ?);''',
                              printings_tuple)
-        print(card_name+' finished!')
     db_connection.commit()
     db_connection.close()
 
 
 if __name__ == '__main__':
-    db_entry('/Users/dodgejoel/Desktop/card_data/')
+    db_entry('./.raw_card_data/')
