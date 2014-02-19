@@ -94,10 +94,10 @@ class WorkerClass(threading.Thread):
                 self.boss.put((priority, func, arg))
                 self.stop_routine()
                 print('URLError', error.reason)
-            except OSError as e:
+            except OSError:
                 self.boss.put((priority, func, arg))
                 self.stop_routine()
-                print('OSERRor', e.reason)
+                print('OSERRor')
             except queue.Empty:
                 self.stop_routine()
         self.boss.worker_done()
@@ -222,18 +222,19 @@ def check_for_new_sets():
 
 if __name__ == '__main__':
     THE_QUEUE = MyQueue(WorkerClass)
+    DATABASE_CONNECTION = sqlite3.connect('./mtg_gatherer.db')
+    CURSOR = DATABASE_CONNECTION.cursor()    
     os.makedirs('./.raw_card_data', exist_ok=True)
 
     for entry in ['Born of the Gods', 'Zendikar',
                             'Worldwake', 'Theros', 'Innistrad']:
-        set_db_connection = sqlite3.connect('./mtg_gatherer.db')
-        set_db_cursor = set_db_connection.cursor()
-        set_db_cursor.execute('''INSERT OR IGNORE INTO sets
-                                 VALUES (?);''', (entry, ))
-        set_db_connection.commit()
-        set_db_connection.close()
-
+        CURSOR.execute('''INSERT OR IGNORE INTO sets 
+                          VALUES (?);''',
+                          (entry, ))
         THE_QUEUE.put((0, multiverse_id_getter, entry))
+    
+    DATABASE_CONNECTION.commit()
+    DATABASE_CONNECTION.close()
 
     START_TIME = time.time()
     THE_QUEUE.start(START_TIME)
