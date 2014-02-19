@@ -1,7 +1,7 @@
 This bundle of code is designed to scrape Wizards of the Coast's Magic: the
-Gathering card database at 'http://gatherer.wizards.com' and build a SQLite
-database with all of the card information contained in it.  First run
-initialize_databse.py to create the database with the appropriate tables.  Next
+Gathering website at 'http://gatherer.wizards.com' and build a SQLite
+database called mtg_gatherer.db with all of the card information contained in it.  First run
+initialize_database.py to create the database with the appropriate tables.  Next
 run gather_card_data.py to extract all of the data.  This takes a while because
 each cards page has to be opened up one at a time.  Finally run
 input_to_database.py to input the gathered data into the database.  
