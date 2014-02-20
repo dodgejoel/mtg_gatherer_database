@@ -52,8 +52,8 @@ def db_entry(path_to_folder):
         card_rarity = card_dict.get('Rarity:')
         card_set = card_dict.get('Expansion:')
         artist_name = card_dict.get('Artist:')
-        printings_tuple = (multiverse_id, card_name, card_rarity, card_set,
-                                                            artist_name, flavor)
+        printings_tuple = (multiverse_id, card_name, card_set, card_rarity,
+                artist_name, flavor)
         cards_tuple = (card_name, card_mana_cost, conv_mana_cost, card_type,
                             card_subtypes, power, toughness, rules, card_colors)
 
