@@ -17,3 +17,15 @@ interacting with the database. In essence I would like to recreate locally all
 of the functionality of the original website.
 
 Non built-in modules required are: bs4, sqlite3.
+
+Bugs/Problems: 
+
+1. We only pick up one half of each fuse and split card. Parsing the HTML is a
+little bit different in this case. Can be fixed easily.
+
+2. Difficult to reproduce bug involving URL request timeouts and some of the
+threads in the gather_card_data script not finishing their tasks and not
+terminating correctly. Perhaps has something to do with the speed of the
+internet connection? Not a serious problem as the program can always be run a
+second time to clean up the lost jobs.
+
