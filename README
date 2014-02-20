@@ -9,6 +9,11 @@ input_to_database.py to input the gathered data into the database.
 I have not thought much yet about what will happen if this process is
 interrupted and you attempt to begin it again.  Working through this will
 probably also solve the problem of how to update the database when new cards
-are released.  This will be addressed soon.  I would also like to bundle this all into a single script that, when called once, will execute all three parts of this program without further user interaction.  After these two bits of the project are completed I would like to implement a GUI for interacting with the database.  In essence I would like to recreate locally all of the functionality of the original website.   
+are released.  This will be addressed soon.  I would also like to bundle this
+all into a single script that, when called once, will execute all three parts
+of this program without further user interaction.  After these two bits of the
+project are completed I would like to implement a GUI for interacting with the
+database.  In essence I would like to recreate locally all of the functionality
+of the original website.   
 
 Non built-in modules required are: bs4, sqlite3.
