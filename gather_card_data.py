@@ -29,7 +29,7 @@ class MyQueue(queue.Queue):
 
         self.start_time = start_time
         self.making = True
-        while self.worker_count < 245:
+        while self.worker_count < 225:
             self.worker_type(self).start()
             self.worker_count += 1
 
@@ -53,6 +53,8 @@ class MyQueue(queue.Queue):
         behaving as I expect it to!'''
         queue.Queue.task_done(self)
         self.tasks_finished += 1
+        if self.tasks_finished % 100 == 0:
+            print(self.qsize(), self.worker_count)
 
     def stop_making(self):
         '''A call to this function will halt production of new workers.  It is
@@ -93,11 +95,11 @@ class WorkerClass(threading.Thread):
             except urllib.error.URLError as error:
                 self.boss.put((priority, func, arg))
                 self.stop_routine()
-                print('URLError', error.reason)
+                #print('URLError', error.reason)
             except OSError:
                 self.boss.put((priority, func, arg))
                 self.stop_routine()
-                print('OSERRor')
+                #print('OSERRor')
             except queue.Empty:
                 self.stop_routine()
         self.boss.worker_done()
@@ -121,12 +123,16 @@ def multiverse_id_getter(self, set_name):
     from that set.  A function is produced that when called will collect the
     data for the card with a given multiverse_id'''
 
-    url_tuple = ('http', 'gatherer.wizards.com', 'Pages/Search/Default.aspx', urllib.parse.urlencode({'output':'checklist', 'set':'["%s"]' % set_name}), '')
+    url_tuple = ('http',
+                 'gatherer.wizards.com',
+                 'Pages/Search/Default.aspx',
+                 urllib.parse.urlencode({'output':'checklist', 'set':'["%s"]' % set_name}),
+                 '')
     url_name = urllib.parse.urlunsplit(url_tuple)
     with urllib.request.urlopen(url_name) as set_page:
         id_list = re.compile(r'multiverseid=(\d+)"').findall(set_page.read().decode('utf-8'))
-
-    for id_number in id_list:
+    
+    for id_number in [foo for foo in id_list if not os.access('./.raw_card_data/%s' % str(foo), mode=os.F_OK)]:
         self.boss.put((1, card_data_getter, id_number))
 
 
@@ -199,7 +205,7 @@ def get_card_dict(card_url):
     return dict([(key, temp_dict[key].get_text().strip()) for key in temp_dict])
 
 
-def check_for_new_sets():
+def check_for_new_sets(new=False):
     '''Opens the gatherer mainpage, reads off all mtg sets and then checks to
     see which ones our database does not know about.'''
 
@@ -211,14 +217,17 @@ def check_for_new_sets():
     for item in soup.find_all('select')[1].find_all('option'):
         if item.string != None:
             set_choices.append(item.string)
-    init_db_connection = sqlite3.connect('./mtg_gatherer.db')
-    init_db_cursor = init_db_connection.cursor()
-    known_sets = [item[0] for item in init_db_cursor.execute('''SELECT name
+    if new:
+        init_db_connection = sqlite3.connect('./mtg_gatherer.db')
+        init_db_cursor = init_db_connection.cursor()
+        known_sets = [item[0] for item in init_db_cursor.execute('''SELECT name
                                                                 FROM sets;''')]
-    init_db_connection.close()
-    new_sets = [item for item in set_choices if item not in known_sets]
-    return new_sets
-
+        init_db_connection.close()
+        new_sets = [item for item in set_choices if item not in known_sets]
+        return new_sets
+    
+    else:
+        return set_choices
 
 if __name__ == '__main__':
     THE_QUEUE = MyQueue(WorkerClass)
@@ -226,8 +235,7 @@ if __name__ == '__main__':
     CURSOR = DATABASE_CONNECTION.cursor()    
     os.makedirs('./.raw_card_data', exist_ok=True)
 
-    for entry in ['Born of the Gods', 'Zendikar',
-                            'Worldwake', 'Theros', 'Innistrad']:
+    for entry in check_for_new_sets(): 
         CURSOR.execute('''INSERT OR IGNORE INTO sets 
                           VALUES (?);''',
                           (entry, ))
