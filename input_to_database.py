@@ -40,9 +40,6 @@ def db_entry(path_to_folder):
             power, toughness = None, None
         flavor = card_dict.get('Flavor Text:')
         rules = card_dict.get('Card Text:')
-        #unpacking the type-subtype data is more complicated because not
-        #every card has both and they come stuck together in a single string.
-        #This could probably be fixed if I weren't such a donkey.
         type_subtype_re = re.compile(u'(.*)\u2014(.*)')
         type_subtype_string = card_dict.get('Types:')
         type_subtype_split = type_subtype_re.match(type_subtype_string)

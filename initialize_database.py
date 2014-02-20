@@ -49,5 +49,4 @@ try:
 except sqlite3.OperationalError:
     print('Table \'printings\' already exists?')
 
-
 DATABASE_CONNECTION.close()
