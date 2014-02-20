@@ -1,17 +1,17 @@
 '''When called, this will extract all the data for each printing of each card
 on the wizards of the coast gatherer webpage at 'http://gatherer.wizards.com'.
 The information for each card will be printed to a file in a folder on the
-desktop each file will be named with the so-called multiverse_id.  Another
-function can be called to input this data into an SQL database.  '''
+desktop each file will be named with the so-called multiverse_id. Another
+function can be called to input this data into an SQL database. '''
 
 import sqlite3, bs4
 import re, urllib.request, urllib.parse, queue, threading, pickle, os
 import time
 
 class MyQueue(queue.Queue):
-    '''The main organizational tool used in this program.  When started this
-    queue produces workers to complete the tasks contained in it.  Initialize
-    with the class to be used as a worker.  When the queue is empty and all
+    '''The main organizational tool used in this program. When started this
+    queue produces workers to complete the tasks contained in it. Initialize
+    with the class to be used as a worker. When the queue is empty and all
     workers have finished, the time taken is printed.'''
 
     def __init__(self, worker_type):
@@ -23,8 +23,8 @@ class MyQueue(queue.Queue):
         self.start_time = None
 
     def start(self, start_time):
-        '''Starts the machine up and running.  Makes workers until it is told
-        to stop doing so.  Keeps a counter of how many are currently active.
+        '''Starts the machine up and running. Makes workers until it is told
+        to stop doing so. Keeps a counter of how many are currently active.
         Should be called with the current time.'''
 
         self.start_time = start_time
@@ -35,8 +35,8 @@ class MyQueue(queue.Queue):
 
     def worker_done(self):
         '''Decrements the count of how many active workers there are when one
-        of them finishes.  If the number of workers is ever moved down to 0
-        when there are still jobs left to do, start() is called again.  This
+        of them finishes. If the number of workers is ever moved down to 0
+        when there are still jobs left to do, start() is called again. This
         could occur due to timing problems among the workers.'''
 
         self.worker_count -= 1
@@ -48,32 +48,35 @@ class MyQueue(queue.Queue):
 
     def task_done(self):
         '''When a worker reports that it has finished a job, it calls this
-        function.  The count of tasks finished is updated.  This is mostly
+        function. The count of tasks finished is updated. This is mostly
         implemented so I can look under the hood and see if my queue is
         behaving as I expect it to!'''
+
         queue.Queue.task_done(self)
         self.tasks_finished += 1
         if self.tasks_finished % 100 == 0:
-            print(self.qsize(), self.worker_count)
+            print('Queue size = ', self.qsize(),'| Active Workers Left = ', self.worker_count)
 
     def stop_making(self):
-        '''A call to this function will halt production of new workers.  It is
+        '''A call to this function will halt production of new workers. It is
         up to the workers to tell the queue when it is time to stop making new
         workers!'''
+
         self.making = False
 
     def shutdown_routine(self):
         '''This will execute once there are no workers left and the queue is
         empty.'''
-        print(time.time() - self.start_time)
+
+        print('Data retrieval finished!  Time Elapsed =', int(time.time() - self.start_time))
 
 
 class WorkerClass(threading.Thread):
-    '''worker thread to be called by the myQueue class.  When started it will
-    attempt to grab the next my_task from its parent queue.  If the queue is
+    '''Worker thread to be called by the MyQueue class. When started it will
+    attempt to grab the next task from its parent queue. If the queue is
     empty or an error is encountered, it stops working and tells its parent
-    queue to stop making new workers.  If it has receieved a task and
-    encoutners an error then that task is also re-added to the queue.'''
+    queue to stop making new workers. If it receieves a task but
+    encounters an error in excecuting it then that task is re-added to the queue.'''
 
     def __init__(self, parent_queue):
         threading.Thread.__init__(self)
@@ -95,21 +98,21 @@ class WorkerClass(threading.Thread):
             except urllib.error.URLError as error:
                 self.boss.put((priority, func, arg))
                 self.stop_routine()
-                #print('URLError', error.reason)
+                print('URLError for input ', arg,'| Reason = ', error.reason)
             except OSError:
                 self.boss.put((priority, func, arg))
                 self.stop_routine()
-                #print('OSERRor')
+                print('OSERRor')
             except queue.Empty:
                 self.stop_routine()
         self.boss.worker_done()
 
 
 def card_data_getter(self, multiverse_id):
-    '''One of the functions implemented by  worker thread.  This one goes to
+    '''One of the functions implemented by a worker thread. This one goes to
     the given cards gatherer page and writes all of the information to a file
     in the folder in the location specified below and whose name is the
-    multiverse_id passsed as an argument.  '''
+    multiverse_id passsed as an argument.'''
 
     card_dict = get_card_dict('http://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=%s'% multiverse_id)
     with open('./.raw_card_data/%s' % multiverse_id, 'wb') as card_file:
@@ -118,10 +121,13 @@ def card_data_getter(self, multiverse_id):
 
 
 def multiverse_id_getter(self, set_name):
-    '''One of the functions implemented by a worker thread.  Opens the
+    '''One of the functions implemented by a worker thread. Opens the
     checklist page for the given set and retrieves all multiverse_ids for cards
-    from that set.  A function is produced that when called will collect the
-    data for the card with a given multiverse_id'''
+    from that set. A function is produced that when called will collect the
+    data for the card with a given multiverse_id. A multiverse_id is only
+    added to the queue if there is no file present in './.raw_card_data/' with
+    that name. This makes the process able to restart if stopped unexpectedly
+    and allows updates upon new set releases to work smoothly.'''
 
     url_tuple = ('http',
                  'gatherer.wizards.com',
@@ -138,8 +144,8 @@ def multiverse_id_getter(self, set_name):
 
 def un_img(tag):
     '''This utility function is in charge of replacing all images in strings
-    that we encoutner with appropriate text.  i.e. replace mana symbols with an
-    appropriate capital letter.  examples include: phyrexian blue mana becomes
+    that we encoutner with appropriate text. i.e. replace mana symbols with an
+    appropriate capital letter. Examples include: Phyrexian blue mana becomes
     pU, hybrid blue and red mana becomes hUR. '''
 
     if tag == None:
@@ -177,7 +183,7 @@ def un_img(tag):
     return None
 
 def un_unpt(pt_tag):
-    '''turns the image for a half power/toughness into a .5.  Only relevant for
+    '''turns the image for a half power/toughness into a .5. Only relevant for
     the un-sets'''
 
     if pt_tag == None:
@@ -190,7 +196,7 @@ def un_unpt(pt_tag):
 def get_card_dict(card_url):
     '''Takes a cards gatherer page and returns a dict whose keys are the
     labels, like "Mana Cost:", "Name:" and whose values are the corresponding
-    values.  Perform a little cleanup as well by replacing images with
+    values. Perform a little cleanup as well by replacing images with
     appropriate text.'''
 
     card_page = urllib.request.urlopen(card_url)
@@ -223,11 +229,12 @@ def check_for_new_sets(new=False):
         known_sets = [item[0] for item in init_db_cursor.execute('''SELECT name
                                                                 FROM sets;''')]
         init_db_connection.close()
-        new_sets = [item for item in set_choices if item not in known_sets]
-        return new_sets
-    
     else:
-        return set_choices
+        known_sets = []
+    
+    new_sets = [item for item in set_choices if item not in known_sets]
+    return new_sets
+
 
 if __name__ == '__main__':
     THE_QUEUE = MyQueue(WorkerClass)

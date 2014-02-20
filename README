@@ -1,19 +1,19 @@
 This bundle of code is designed to scrape Wizards of the Coast's Magic: the
 Gathering website at 'http://gatherer.wizards.com' and build a SQLite database
-called mtg_gatherer.db with all of the card information contained in it.  First
+called mtg_gatherer.db with all of the card information contained in it. First
 run initialize_database.py to create the database with the appropriate tables.
-Next run gather_card_data.py to extract all of the data.  This takes a while
-because each cards page has to be opened up one at a time.  Finally run
-input_to_database.py to input the gathered data into the database.  
+Next run gather_card_data.py to extract all of the data. This takes a while
+because each cards page has to be opened up one at a time. Finally run
+input_to_database.py to input the gathered data into the database. 
 
-I have not thought much yet about what will happen if this process is
-interrupted and you attempt to begin it again.  Working through this will
-probably also solve the problem of how to update the database when new cards
-are released.  This will be addressed soon.  I would also like to bundle this
-all into a single script that, when called once, will execute all three parts
-of this program without further user interaction.  After these two bits of the
-project are completed I would like to implement a GUI for interacting with the
-database.  In essence I would like to recreate locally all of the functionality
-of the original website.   
+If gather_card_data.py is interrupted and then called again, it will pick up
+where it left off. i.e. the card data already retrieved will not be fetched
+again. 
+
+I would also like to bundle this all into a single script that, when called
+once, will execute all three parts of this program without further user
+interaction. After these two bits of the project are completed I would like to
+implement a GUI for interacting with the database. In essence I would like to
+recreate locally all of the functionality of the original website.
 
 Non built-in modules required are: bs4, sqlite3.

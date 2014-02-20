@@ -1,5 +1,5 @@
 '''Creates the database where the card data from gatherer will eventually be
-input.  Initializes it with an appropriate collection of tables.'''
+input. Initializes it with an appropriate collection of tables.'''
 
 import sqlite3
 

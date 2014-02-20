@@ -1,4 +1,4 @@
-'''This program is to be run after mtgdb.py.  It will take the path to the
+'''This program is to be run after mtgdb.py. It will take the path to the
 folder of files of card data produced by that program and will one by one
 einsert them into a SQLite database that must already exist with appropriate
 tables and columns.'''
