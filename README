@@ -10,10 +10,10 @@ If gather_card_data.py is interrupted and then called again, it will pick up
 where it left off. i.e. the card data already retrieved will not be fetched
 again. 
 
-This is an ongoing prohect.  I would like to bundle this into a single script that, when called
-once, will execute the three parts of this program without further user
-interaction. After this, I would like to
-implement a GUI for interacting with the database. In essence I would like to
-recreate locally all of the functionality of the original website.
+This is an ongoing prohect.  I would like to bundle this into a single script
+that, when called once, will execute the three parts of this program without
+further user interaction. After this, I would like to implement a GUI for
+interacting with the database. In essence I would like to recreate locally all
+of the functionality of the original website.
 
 Non built-in modules required are: bs4, sqlite3.
