@@ -55,7 +55,7 @@ class MyQueue(queue.Queue):
         queue.Queue.task_done(self)
         self.tasks_finished += 1
         if self.tasks_finished % 100 == 0:
-            print('Queue size = ', self.qsize(),'| Active Workers Left = ', self.worker_count)
+            print('Queue size =', self.qsize(),'| Active Workers Left =', self.worker_count)
 
     def stop_making(self):
         '''A call to this function will halt production of new workers. It is
@@ -68,7 +68,7 @@ class MyQueue(queue.Queue):
         '''This will execute once there are no workers left and the queue is
         empty.'''
 
-        print('Data retrieval finished!  Time Elapsed =', int(time.time() - self.start_time))
+        print('Data retrieval finished!  Time Elapsed =', int(time.time() - self.start_time), 'seconds.')
 
 
 class WorkerClass(threading.Thread):
@@ -202,13 +202,15 @@ def get_card_dict(card_url):
     card_page = urllib.request.urlopen(card_url)
     card_soup = bs4.BeautifulSoup(card_page)
     card_page.close()
-    temp_dict = dict([(label_tag.get_text().strip(),
-                       label_tag.find_next_sibling())
-                for label_tag in card_soup.find_all('div', class_='label')])
+    labels_list = card_soup.find_all('div', class_='label')
+    values_list = card_soup.find_all('div', class_='value')
+
+    temp_dict = dict([(labels_list[i].get_text().strip(), values_list[i])
+                                            for i in range(len(labels_list))])
     un_img(temp_dict.get('Mana Cost:'))
     un_img(temp_dict.get('Card Text:'))
     un_unpt(temp_dict.get('P/T:'))
-    return dict([(key, temp_dict[key].get_text().strip()) for key in temp_dict])
+    return dict([(key, ' '.join(temp_dict[key].stripped_strings)) for key in temp_dict])
 
 
 def check_for_new_sets(new=False):
