@@ -17,10 +17,10 @@ def get_card_dict(card_page):
         labels[i] = labels[i].get_text().strip()
         if labels[i] in ['Card Text:', 'Mana Cost:', 'Converted Mana Cost:']:
             un_img(values[i])
-        if labels[i] == 'P/T:':
+        if labels[i] is 'P/T:':
             un_unpt(values[i])
         values[i] = ' '.join(values[i].stripped_strings)
-        if labels[i] == 'Mana Cost:':
+        if labels[i] is 'Mana Cost:':
             values[i] = ''.join(values[i].split())
 
     if is_split_card(labels):
@@ -48,7 +48,7 @@ def split_values_fixer(labels, values):
                        'Mana Cost:', 'Converted Mana Cost:']:
         index_list = []
         for i in range(len(labels)):
-            if labels[i] == label_name:
+            if labels[i] is label_name:
                 index_list.append(i)
         replacement_string = '//'.join([values[i] for i in index_list])
         for i in index_list:
@@ -69,10 +69,10 @@ def un_img(tag):
     for img_tag in img_list:
         img_string = img_tag.get('alt')
         if len(img_string) > 2:
-            if img_string == 'Blue':
+            if img_string is 'Blue':
                 img_tag.replace_with('U')
                 continue
-            elif img_string == 'Phyrexian':
+            elif img_string is 'Phyrexian':
                 img_tag.replace_with('p')
                 continue
             elif 'Phyrexian' in img_string:
@@ -81,7 +81,7 @@ def un_img(tag):
                 else:
                     img_tag.replace_with('p'+img_tag.get('alt')[10])
                 continue
-            elif img_string == 'Variable Colorless':
+            elif img_string is 'Variable Colorless':
                 img_tag.replace_with('X')
                 continue
             elif 'or' in img_string:
@@ -101,7 +101,7 @@ def un_unpt(pt_tag):
     '''turns the image for a half power/toughness into a .5. Only relevant for
     the un-sets'''
 
-    if pt_tag == None:
+    if pt_tag is None:
         return None
     else:
         pt_tag.string = pt_tag.string.replace('{1/2}', '.5')
