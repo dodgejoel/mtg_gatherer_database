@@ -56,7 +56,8 @@ class MyQueue(queue.Queue):
         queue.Queue.task_done(self)
         self.tasks_finished += 1
         if self.tasks_finished % 1000 == 0:
-            print('Queue size =', self.qsize(),'| Active Workers Left =', self.worker_count)
+            print('Queue size =', self.qsize(),
+                  '| Active Workers Left =', self.worker_count)
 
     def stop_making(self):
         '''A call to this function will halt production of new workers. It is
@@ -69,15 +70,17 @@ class MyQueue(queue.Queue):
         '''This will execute once there are no workers left and the queue is
         empty.'''
 
-        print('Data retrieval finished!  Time Elapsed =', int(time.time() - self.start_time), 'seconds.', self.tasks_finished, 'tasks finished.')
+        print('Data retrieval finished!  Time Elapsed =',
+               int(time.time() - self.start_time), 'seconds.',
+               self.tasks_finished, 'tasks finished.')
 
 
 class WorkerClass(threading.Thread):
     '''Worker thread to be called by the MyQueue class. When started it will
-    attempt to grab the next task from its parent queue. If the queue is
-    empty or an error is encountered, it stops working and tells its parent
-    queue to stop making new workers. If it receieves a task but
-    encounters an error in excecuting it then that task is re-added to the queue.'''
+    attempt to grab the next task from its parent queue. If the queue is empty
+    or an error is encountered, it stops working and tells its parent queue to
+    stop making new workers. If it receieves a task but encounters an error in
+    excecuting it then that task is re-added to the queue.'''
 
     def __init__(self, parent_queue):
         threading.Thread.__init__(self)
@@ -99,7 +102,8 @@ class WorkerClass(threading.Thread):
             except urllib.error.URLError as error:
                 self.boss.put((priority, func, arg))
                 self.stop_routine()
-                print('URLError for input ', arg,'| Reason = ', error.reason)
+                print('URLError for input ', arg,
+                      '| Reason = ', error.reason)
             except OSError:
                 self.boss.put((priority, func, arg))
                 self.stop_routine()
@@ -114,8 +118,13 @@ def card_data_getter(self, multiverse_id):
     the given cards gatherer page and writes all of the information to a file
     in the folder in the location specified below and whose name is the
     multiverse_id passsed as an argument.'''
-
-    with urllib.request.urlopen('http://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=%s'% multiverse_id) as card_page:
+    url_tuple = ('http',
+                 'gatherer.wizards.com',
+                 'Pages/Card/Details.aspx',
+                 urllib.parse.urlencode({'multiverseid':str(multiverse_id)}),
+                 '')
+    url_name = urllib.parse.urlunsplit(url_tuple)
+    with urllib.request.urlopen(url_name) as card_page:
         card_dict = data_formatting.get_card_dict(card_page)
 
     with open('./.raw_card_data/%s' % multiverse_id, 'wb') as card_file:
@@ -135,13 +144,17 @@ def multiverse_id_getter(self, set_name):
     url_tuple = ('http',
                  'gatherer.wizards.com',
                  'Pages/Search/Default.aspx',
-                 urllib.parse.urlencode({'output':'checklist', 'set':'["%s"]' % set_name}),
+                 urllib.parse.urlencode({'output':'checklist',
+                                         'set':'["%s"]' % set_name}),
                  '')
     url_name = urllib.parse.urlunsplit(url_tuple)
     with urllib.request.urlopen(url_name) as set_page:
-        id_list = re.compile(r'multiverseid=(\d+)"').findall(set_page.read().decode('utf-8'))
-    
-    for id_number in [foo for foo in id_list if not os.access('./.raw_card_data/%s' % str(foo), mode=os.F_OK)]:
+        id_list = re.compile(r'multiverseid=(\d+)"').findall(
+                                            set_page.read().decode('utf-8'))
+
+    for id_number in [item for item in id_list
+                      if not os.access('./.raw_card_data/%s' % str(item),
+                                       mode=os.F_OK)]:
         self.boss.put((1, card_data_getter, id_number))
 
 
@@ -165,7 +178,7 @@ def check_for_new_sets(new=False):
         init_db_connection.close()
     else:
         known_sets = []
-    
+
     new_sets = [item for item in set_choices if item not in known_sets]
     return new_sets
 
@@ -173,15 +186,15 @@ def check_for_new_sets(new=False):
 if __name__ == '__main__':
     THE_QUEUE = MyQueue(WorkerClass)
     DATABASE_CONNECTION = sqlite3.connect('./mtg_gatherer.db')
-    CURSOR = DATABASE_CONNECTION.cursor()    
+    CURSOR = DATABASE_CONNECTION.cursor()
     os.makedirs('./.raw_card_data', exist_ok=True)
 
-    for entry in check_for_new_sets(): 
-        CURSOR.execute('''INSERT OR IGNORE INTO sets 
+    for entry in check_for_new_sets():
+        CURSOR.execute('''INSERT OR IGNORE INTO sets
                           VALUES (?);''',
                           (entry, ))
         THE_QUEUE.put((0, multiverse_id_getter, entry))
-    
+
     DATABASE_CONNECTION.commit()
     DATABASE_CONNECTION.close()
 

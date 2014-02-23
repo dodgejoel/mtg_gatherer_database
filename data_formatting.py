@@ -15,7 +15,7 @@ def get_card_dict(card_page):
 
     for i in range(len(labels)):
         labels[i] = labels[i].get_text().strip()
-        if labels[i] in ['Card Text:', 'Mana Cost:', 'Converted Mana Cost:']: 
+        if labels[i] in ['Card Text:', 'Mana Cost:', 'Converted Mana Cost:']:
             un_img(values[i])
         if labels[i] == 'P/T:':
             un_unpt(values[i])
@@ -42,10 +42,11 @@ def is_split_card(labels_list):
 
 def split_values_fixer(labels, values):
     '''The formatting for split/fuse/flip cards requires some special
-    handling.'''    
+    handling.'''
 
-    for label_name in ['Card Name:', 'Card Text:', 'Mana Cost:', 'Converted Mana Cost:']:
-        index_list=[]
+    for label_name in ['Card Name:', 'Card Text:',
+                       'Mana Cost:', 'Converted Mana Cost:']:
+        index_list = []
         for i in range(len(labels)):
             if labels[i] == label_name:
                 index_list.append(i)
