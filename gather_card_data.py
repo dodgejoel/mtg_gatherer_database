@@ -98,7 +98,6 @@ class WorkerClass(threading.Thread):
             try:
                 priority, func, arg = self.boss.get(timeout=10)
                 func(self, arg)
-                self.boss.task_done()
             except urllib.error.URLError as error:
                 self.boss.put((priority, func, arg))
                 self.stop_routine()
@@ -110,6 +109,8 @@ class WorkerClass(threading.Thread):
                 print('OSERRor')
             except queue.Empty:
                 self.stop_routine()
+            else:
+                self.boss.task_done()
         self.boss.worker_done()
 
 
