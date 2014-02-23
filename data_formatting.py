@@ -60,28 +60,35 @@ def un_img(tag):
     '''This utility function is in charge of replacing all images in strings
     that we encoutner with appropriate text. i.e. replace mana symbols with an
     appropriate capital letter. Examples include: Phyrexian blue mana becomes
-    pU, hybrid blue and red mana becomes hUR. '''
+    pU, hybrid blue and red mana becomes hUR.'''
 
-    if tag == None:
+    # Problem here in formatting.  When we replace the image tags with the
+    # appropriate string.  We are actually creating a seperate string sitting
+    # inside the larger tag.  This causes weird spaces to be put in when we get
+    # stripped_strings later.  CAn fix this but it's not obvious to me how to
+    # at the moment.  
+
+    if tag is None:
         return None
 
     img_list = tag.find_all('img')
     for img_tag in img_list:
         img_string = img_tag.get('alt')
+        print(img_string == 'Blue')
         if len(img_string) > 2:
-            if img_string is 'Blue':
+            if img_string == 'Blue':
                 img_tag.replace_with('U')
                 continue
-            elif img_string is 'Phyrexian':
+            elif img_string == 'Phyrexian':
                 img_tag.replace_with('p')
                 continue
-            elif 'Phyrexian' in img_string:
+            elif 'Phyrexian' == img_string:
                 if 'Blue' in img_string:
                     img_tag.replace_with('pU')
                 else:
                     img_tag.replace_with('p'+img_tag.get('alt')[10])
                 continue
-            elif img_string is 'Variable Colorless':
+            elif img_string == 'Variable Colorless':
                 img_tag.replace_with('X')
                 continue
             elif 'or' in img_string:
