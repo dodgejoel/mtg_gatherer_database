@@ -10,9 +10,9 @@ If gather_card_data.py is interrupted and then called again, it will pick up
 where it left off. i.e. the card data already retrieved will not be fetched
 again. 
 
-This is an ongoing project. I would like to bundle this into a single script
-that, when called once, will execute the three parts of this program without
-further user interaction. After this, I would like to implement a GUI for
+This is an ongoing project. The next step is to bundle this into a single
+script that, when called once, will execute the three parts of this program
+without further user interaction. After this, I will implement a GUI for
 interacting with the database. In essence I would like to recreate locally all
 of the functionality of the original website.
 
@@ -22,18 +22,19 @@ Bugs/Problems:
 
 1. Fuse/Split/Flip cards are all supported now as well as werewolves and other
 Innistrad/Dark Ascension flip cards. Only the name, mana cost and card text is
-currently show for both halves. It will be seperated by a '//'. Gatherer's
-treatment of these cards is not uniform so there are some funny things.
-Currently all werewolves have two multiverse_ids for example whereas split
-cards only have one.This will need to be dealt with in a more heavy handed
-way to avoid having duplicate werewolves in the resulting database. In
+currently show for both halves with each halves data seperated by a '//'.
+Gatherer's treatment of these cards is not uniform so there are some funny
+things.  Currently all werewolves have two multiverse_ids for example whereas
+split cards only have one.This will need to be dealt with in a more heavy
+handed way to avoid having duplicate werewolves in the resulting database. In
 addition, I would like to seperate out the types/ and subtypes of each half of
 these cards as many of them change.  The parsing of the type subtype data is a
 little different than he rest of the data so I am putting this off for now.   
 
-2. Difficult to reproduce bug involving URL request timeouts and some of the
-threads in the gather_card_data script not finishing their tasks and not
-terminating correctly. Perhaps has something to do with the speed of the
-internet connection? Not a serious problem as the program can always be run a
-second time to clean up the lost jobs.  I still have not understood this well.
+2. There is a difficult to reproduce bug involving URL request timeouts and
+some of the threads in the gather_card_data script not finishing their tasks
+and not terminating correctly. Perhaps has something to do with the speed of
+the internet connection? Not a serious problem as the program can always be run
+a second time to clean up the lost jobs.  I still have not understood this
+well.
 
