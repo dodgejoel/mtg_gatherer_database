@@ -20,12 +20,20 @@ Non built-in modules required are: bs4, sqlite3.
 
 Bugs/Problems: 
 
-1. We only pick up one half of each fuse and split card. Parsing the HTML is a
-little bit different in this case. Can be fixed easily.
+1. Fuse/Split/Flip cards are all supported now as well as werewolves and other
+Innistrad/Dark Ascension flip cards. Only the name, mana cost and card text is
+currently show for both halves. It will be seperated by a '//'. Gatherer's
+treatment of these cards is not uniform so there are some funny things.
+Currently all werewolves have two multiverse_ids for example whereas split
+cards only have one.This will need to be dealt with in a more heavy handed
+way to avoid having duplicate werewolves in the resulting database. In
+addition, I would like to seperate out the types/ and subtypes of each half of
+these cards as many of them change.  The parsing of the type subtype data is a
+little different than he rest of the data so I am putting this off for now.   
 
 2. Difficult to reproduce bug involving URL request timeouts and some of the
 threads in the gather_card_data script not finishing their tasks and not
 terminating correctly. Perhaps has something to do with the speed of the
 internet connection? Not a serious problem as the program can always be run a
-second time to clean up the lost jobs.
+second time to clean up the lost jobs.  I still have not understood this well.
 

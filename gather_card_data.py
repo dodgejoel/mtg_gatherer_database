@@ -7,6 +7,7 @@ function can be called to input this data into an SQL database. '''
 import sqlite3, bs4
 import re, urllib.request, urllib.parse, queue, threading, pickle, os
 import time
+import data_formatting
 
 class MyQueue(queue.Queue):
     '''The main organizational tool used in this program. When started this
@@ -54,7 +55,7 @@ class MyQueue(queue.Queue):
 
         queue.Queue.task_done(self)
         self.tasks_finished += 1
-        if self.tasks_finished % 100 == 0:
+        if self.tasks_finished % 1000 == 0:
             print('Queue size =', self.qsize(),'| Active Workers Left =', self.worker_count)
 
     def stop_making(self):
@@ -68,7 +69,7 @@ class MyQueue(queue.Queue):
         '''This will execute once there are no workers left and the queue is
         empty.'''
 
-        print('Data retrieval finished!  Time Elapsed =', int(time.time() - self.start_time), 'seconds.')
+        print('Data retrieval finished!  Time Elapsed =', int(time.time() - self.start_time), 'seconds.', self.tasks_finished, 'tasks finished.')
 
 
 class WorkerClass(threading.Thread):
@@ -114,7 +115,9 @@ def card_data_getter(self, multiverse_id):
     in the folder in the location specified below and whose name is the
     multiverse_id passsed as an argument.'''
 
-    card_dict = get_card_dict('http://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=%s'% multiverse_id)
+    with urllib.request.urlopen('http://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=%s'% multiverse_id) as card_page:
+        card_dict = data_formatting.get_card_dict(card_page)
+
     with open('./.raw_card_data/%s' % multiverse_id, 'wb') as card_file:
         pick = pickle.Pickler(card_file)
         pick.dump(card_dict)
@@ -140,77 +143,6 @@ def multiverse_id_getter(self, set_name):
     
     for id_number in [foo for foo in id_list if not os.access('./.raw_card_data/%s' % str(foo), mode=os.F_OK)]:
         self.boss.put((1, card_data_getter, id_number))
-
-
-def un_img(tag):
-    '''This utility function is in charge of replacing all images in strings
-    that we encoutner with appropriate text. i.e. replace mana symbols with an
-    appropriate capital letter. Examples include: Phyrexian blue mana becomes
-    pU, hybrid blue and red mana becomes hUR. '''
-
-    if tag == None:
-        return None
-
-    img_list = tag.find_all('img')
-    for img_tag in img_list:
-        img_string = img_tag.get('alt')
-        if len(img_string) > 2:
-            if img_string == 'Blue':
-                img_tag.replace_with('U')
-                continue
-            elif img_string == 'Phyrexian':
-                img_tag.replace_with('p')
-                continue
-            elif 'Phyrexian' in img_string:
-                if 'Blue' in img_string:
-                    img_tag.replace_with('pU')
-                else:
-                    img_tag.replace_with('p'+img_tag.get('alt')[10])
-                continue
-            elif img_string == 'Variable Colorless':
-                img_tag.replace_with('X')
-                continue
-            elif 'or' in img_string:
-                split_string = img_string.split()
-                img_tag.replace_with('h'+split_string[0][0]+split_string[2][0])
-                continue
-            else:
-                img_tag.replace_with(img_tag.get('alt')[0])
-                continue
-        else:
-            img_tag.replace_with(img_tag.get('alt'))
-            continue
-    return None
-
-def un_unpt(pt_tag):
-    '''turns the image for a half power/toughness into a .5. Only relevant for
-    the un-sets'''
-
-    if pt_tag == None:
-        return None
-    else:
-        pt_tag.string = pt_tag.string.replace('{1/2}', '.5')
-        return None
-
-
-def get_card_dict(card_url):
-    '''Takes a cards gatherer page and returns a dict whose keys are the
-    labels, like "Mana Cost:", "Name:" and whose values are the corresponding
-    values. Perform a little cleanup as well by replacing images with
-    appropriate text.'''
-
-    card_page = urllib.request.urlopen(card_url)
-    card_soup = bs4.BeautifulSoup(card_page)
-    card_page.close()
-    labels_list = card_soup.find_all('div', class_='label')
-    values_list = card_soup.find_all('div', class_='value')
-
-    temp_dict = dict([(labels_list[i].get_text().strip(), values_list[i])
-                                            for i in range(len(labels_list))])
-    un_img(temp_dict.get('Mana Cost:'))
-    un_img(temp_dict.get('Card Text:'))
-    un_unpt(temp_dict.get('P/T:'))
-    return dict([(key, ' '.join(temp_dict[key].stripped_strings)) for key in temp_dict])
 
 
 def check_for_new_sets(new=False):
