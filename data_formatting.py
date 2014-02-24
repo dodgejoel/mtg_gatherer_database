@@ -17,6 +17,8 @@ def get_card_dict(card_page):
         labels[i] = labels[i].get_text().strip()
         if labels[i] in ['Card Text:', 'Mana Cost:', 'Converted Mana Cost:']:
             un_img(values[i])
+        if labels[i] in ['Card Text:', 'Flavor Text:']:
+            un_box_text(values[i])
         if labels[i] is 'P/T:':
             un_unpt(values[i])
         values[i] = ' '.join(values[i].stripped_strings)
@@ -74,7 +76,6 @@ def un_img(tag):
     img_list = tag.find_all('img')
     for img_tag in img_list:
         img_string = img_tag.get('alt')
-        print(img_string == 'Blue')
         if len(img_string) > 2:
             if img_string == 'Blue':
                 img_tag.replace_with('U')
@@ -102,6 +103,14 @@ def un_img(tag):
             img_tag.replace_with(img_tag.get('alt'))
             continue
     return None
+
+
+def un_box_text(tag):
+    '''This should fix the formatting problems that occur when images are
+    replaced by their names.  Might still be some problems though?'''
+    
+    for box in tag.find_all('div', class_='cardtextbox'):
+        box.replace_with(box.get_text())
 
 
 def un_unpt(pt_tag):
