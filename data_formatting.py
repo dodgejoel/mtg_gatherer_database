@@ -33,8 +33,8 @@ def get_card_dict(card_page):
 
 def is_split_card(labels_list):
     '''Returns True if the lables_list contains two entries for 'Card Name:',
-    this will be the case if the labels come froma  fuse/split/flip card and a
-    couple of other instances.  '''
+    this will be the case if the labels come from a fuse/split/flip card and a
+    couple of other instances.'''
 
     if labels_list.count(labels_list[0]) > 1:
         return True
@@ -63,12 +63,6 @@ def un_img(tag):
     that we encoutner with appropriate text. i.e. replace mana symbols with an
     appropriate capital letter. Examples include: Phyrexian blue mana becomes
     pU, hybrid blue and red mana becomes hUR.'''
-
-    # Problem here in formatting.  When we replace the image tags with the
-    # appropriate string.  We are actually creating a seperate string sitting
-    # inside the larger tag.  This causes weird spaces to be put in when we get
-    # stripped_strings later.  CAn fix this but it's not obvious to me how to
-    # at the moment.  
 
     if tag is None:
         return None
@@ -106,16 +100,17 @@ def un_img(tag):
 
 
 def un_box_text(tag):
-    '''This should fix the formatting problems that occur when images are
-    replaced by their names.  Might still be some problems though?'''
+    '''Messes with the structure of the BeautifulSouptag so that the
+    formatting comes out right when we replace mana symbols with their
+    appropriate names.'''
     
     for box in tag.find_all('div', class_='cardtextbox'):
         box.replace_with(box.get_text())
 
 
 def un_unpt(pt_tag):
-    '''turns the image for a half power/toughness into a .5. Only relevant for
-    the un-sets'''
+    '''Replace the image for a half power/toughness into a .5. Only relevant for
+    the un-sets.'''
 
     if pt_tag is None:
         return None
