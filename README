@@ -29,7 +29,11 @@ split cards only have one.This will need to be dealt with in a more heavy
 handed way to avoid having duplicate werewolves in the resulting database. In
 addition, I would like to seperate out the types/ and subtypes of each half of
 these cards as many of them change.  The parsing of the type subtype data is a
-little different than he rest of the data so I am putting this off for now.   
+little different than he rest of the data so I am putting this off for now.
+Another little problem with these cards is the computation of the converted
+mana cost of the split and fuse cards.  As it currently stands, the database
+entries for these cards will have cmcs of the form '3//3' for example and this
+compares as > than any single number.  
 
 2. There is a difficult to reproduce bug involving URL request timeouts and
 some of the threads in the gather_card_data script not finishing their tasks
