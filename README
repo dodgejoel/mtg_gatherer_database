@@ -1,10 +1,11 @@
 This bundle of code is designed to scrape Wizards of the Coast's Magic: the
-Gathering website at 'http://gatherer.wizards.com' and build a SQLite database
+Gathering website at 'http://gatherer.wizards.com' and build an SQLite database
 called mtg_gatherer.db with all of the card information contained in it. First
-run initialize_database.py to create the database with the appropriate tables.
-Next run gather_card_data.py to extract all of the data. This takes a while
-because each cards page has to be opened up one at a time. Finally run
-input_to_database.py to input the gathered data into the database. 
+run 'initialize_database' to create the database with the appropriate tables.
+Next run 'gather_card_data' to extract all of the data.  Finally run
+'input_to_database' to input the data into the database. The first and last
+programs take very little time to run but gather_card_data takes about 20
+minutes to complete.   
 
 If gather_card_data.py is interrupted and then called again, it will pick up
 where it left off. i.e. the card data already retrieved will not be fetched
@@ -20,20 +21,20 @@ Non built-in modules required are: bs4, sqlite3.
 
 Bugs/Problems: 
 
-1. Fuse/Split/Flip cards are all supported now as well as werewolves and other
-Innistrad/Dark Ascension flip cards. Only the name, mana cost and card text is
-currently show for both halves with each halves data seperated by a '//'.
+1. Fuse/Split/Flip/Werewolf cards are supported but are quirky.  Only the name,
+mana cost and card text is currently shown for both halves with each halves
+data seperated by a '//'.  This is a little undesirable as some of these cards
+types/subtypes change upon flipping. The parsing of the type subtype data is a
+little different than he rest of the data so I am putting this off for now.
+
 Gatherer's treatment of these cards is not uniform so there are some funny
 things.  Currently all werewolves have two multiverse_ids for example whereas
-split cards only have one.This will need to be dealt with in a more heavy
-handed way to avoid having duplicate werewolves in the resulting database. In
-addition, I would like to seperate out the types/ and subtypes of each half of
-these cards as many of them change.  The parsing of the type subtype data is a
-little different than he rest of the data so I am putting this off for now.
-Another little problem with these cards is the computation of the converted
-mana cost of the split and fuse cards.  As it currently stands, the database
-entries for these cards will have cmcs of the form '3//3' for example and this
-compares as > than any single number.  
+split cards only have one.  This will need to be dealt with in a more heavy
+handed way to avoid duplicate werewolves in the resulting database.  Another
+little problem with these cards is the computation of the converted mana cost
+of the split and fuse cards.  As it currently stands, the database entries for
+these cards will have cmcs of the form '3//3' for example and this compares as
+> than any single number.  
 
 2. There is a difficult to reproduce bug involving URL request timeouts and
 some of the threads in the gather_card_data script not finishing their tasks
