@@ -2,6 +2,7 @@
 that is pulled from the pages for each card.'''
 
 import bs4
+import re
 
 def get_card_dict(card_page):
     '''Takes a cards gatherer page and returns a dict whose keys are the
@@ -24,6 +25,9 @@ def get_card_dict(card_page):
         values[i] = ' '.join(values[i].stripped_strings)
         if labels[i] == 'Mana Cost:':
             values[i] = ''.join(values[i].split())
+        if labels[i] == 'P/T:':
+            values[i] = values[i].replace(' / ', '@')
+            
 
     if is_split_card(labels):
         values = split_values_fixer(labels, values)
@@ -47,7 +51,7 @@ def split_values_fixer(labels, values):
     handling.'''
 
     labels_to_fix = ['Card Name:', 'Card Text:', 
-                     'Mana Cost:', 'Converted Mana Cost:']
+            'Mana Cost:', 'Converted Mana Cost:', 'P/T:']
     fixer_dict = {ell:[] for ell in labels_to_fix}
 
     for i in range(len(labels)):
@@ -55,9 +59,18 @@ def split_values_fixer(labels, values):
                 fixer_dict[labels[i]].append(i)
     
     for label in fixer_dict:
-        new_val = '//'.join([values[i] for i in fixer_dict[label]])
-        for i in fixer_dict[label]:
-            values[i] = new_val
+        if label != 'P/T:':
+            new_val = '//'.join([values[i] for i in fixer_dict[label]])
+            for i in fixer_dict[label]:
+                values[i] = new_val
+        elif label in labels:
+            patt = re.compile(r'(\d*)@(\d*)')
+            first_pt = patt.match(values[fixer_dict[label][0]]).group(1, 2)
+            second_pt = patt.match(values[fixer_dict[label][1]]).group(1, 2)
+            power = '//'.join([first_pt[0], second_pt[0]])
+            toughness = '//'.join([first_pt[1], second_pt[1]])
+            for i in fixer_dict['P/T:']:
+                values[i] = '@'.join([power, toughness])
     
     return values
 

@@ -35,8 +35,8 @@ def db_entry(path_to_folder):
         card_mana_cost = card_dict.get('Mana Cost:')
         card_colors = get_colors(card_mana_cost)
         conv_mana_cost = card_dict.get('Converted Mana Cost:', 0)
-        power, toughness = [i.strip() for i in
-                            card_dict.get('P/T:', 'NULL/NULL').split('/')]
+        power, toughness = [i for i in
+                            card_dict.get('P/T:', 'NULL@NULL').split('@')]
         if (power, toughness) == ('NULL', 'NULL'):
             power, toughness = None, None
         flavor = card_dict.get('Flavor Text:')

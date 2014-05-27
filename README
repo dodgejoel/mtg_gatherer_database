@@ -27,6 +27,10 @@ data seperated by a '//'.  This is a little undesirable as some of these cards
 types/subtypes change upon flipping. The parsing of the type subtype data is a
 little different than he rest of the data so I am putting this off for now.
 
+Currently, there is a problem with cards that are creatures on one side but
+flip to non creatures.  This is sloppy on my part but I have fixed the problem
+of only collecting power nad toughness data for one side of the werewolf cards.
+
 Gatherer's treatment of these cards is not uniform so there are some funny
 things.  Currently all werewolves have two multiverse_ids for example whereas
 split cards only have one.  This will need to be dealt with in a more heavy
