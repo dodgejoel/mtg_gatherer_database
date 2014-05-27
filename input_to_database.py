@@ -23,6 +23,7 @@ def db_entry(path_to_folder):
 
     db_connection = sqlite3.connect('./mtg_gatherer.db')
     db_cursor = db_connection.cursor()
+    counter = 0
     for file_name in os.listdir(path_to_folder):
         puck = pickle.Unpickler(open(path_to_folder + file_name, 'rb'))
         try:
@@ -66,8 +67,12 @@ def db_entry(path_to_folder):
         db_cursor.execute('''INSERT OR IGNORE INTO printings
                              VALUES (?, ?, ?, ?, ?, ?);''',
                              printings_tuple)
+        counter += 1
+        print('\r{} files input'.format(counter), end='')
+
     db_connection.commit()
     db_connection.close()
+    print('\n')
 
 
 if __name__ == '__main__':

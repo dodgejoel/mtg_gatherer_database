@@ -19,10 +19,10 @@ def get_card_dict(card_page):
             un_img(values[i])
         if labels[i] in ['Card Text:', 'Flavor Text:']:
             un_box_text(values[i])
-        if labels[i] is 'P/T:':
+        if labels[i] == 'P/T:':
             un_unpt(values[i])
         values[i] = ' '.join(values[i].stripped_strings)
-        if labels[i] is 'Mana Cost:':
+        if labels[i] == 'Mana Cost:':
             values[i] = ''.join(values[i].split())
 
     if is_split_card(labels):
@@ -33,8 +33,8 @@ def get_card_dict(card_page):
 
 def is_split_card(labels_list):
     '''Returns True if the lables_list contains two entries for 'Card Name:',
-    this will be the case if the labels come from a fuse/split/flip card and a
-    couple of other instances.'''
+    this will be the case if the labels come froma  fuse/split/flip card and a
+    couple of other instances.  '''
 
     if labels_list.count(labels_list[0]) > 1:
         return True
@@ -46,16 +46,24 @@ def split_values_fixer(labels, values):
     '''The formatting for split/fuse/flip cards requires some special
     handling.'''
 
-    for label_name in ['Card Name:', 'Card Text:',
-                       'Mana Cost:', 'Converted Mana Cost:']:
-        index_list = []
-        for i in range(len(labels)):
-            if labels[i] is label_name:
-                index_list.append(i)
-        replacement_string = '//'.join([values[i] for i in index_list])
-        for i in index_list:
-            values[i] = replacement_string
+    labels_to_fix = ['Card Name:', 'Card Text:', 
+                     'Mana Cost:', 'Converted Mana Cost:']
+    fixer_dict = {ell:[] for ell in labels_to_fix}
+
+    for i in range(len(labels)):
+            if labels[i] in labels_to_fix:
+                fixer_dict[labels[i]].append(i)
+    
+    for label in fixer_dict:
+        new_val = '//'.join([values[i] for i in fixer_dict[label]])
+        for i in fixer_dict[label]:
+            values[i] = new_val
+    
     return values
+
+def un_box_text(tag):
+    for box in tag.find_all('div', class_='cardtextbox'):
+        box.replace_with(box.get_text())
 
 
 def un_img(tag):
@@ -63,6 +71,12 @@ def un_img(tag):
     that we encoutner with appropriate text. i.e. replace mana symbols with an
     appropriate capital letter. Examples include: Phyrexian blue mana becomes
     pU, hybrid blue and red mana becomes hUR.'''
+
+    # Problem here in formatting.  When we replace the image tags with the
+    # appropriate string.  We are actually creating a seperate string sitting
+    # inside the larger tag.  This causes weird spaces to be put in when we get
+    # stripped_strings later.  CAn fix this but it's not obvious to me how to
+    # at the moment.  
 
     if tag is None:
         return None
@@ -72,7 +86,8 @@ def un_img(tag):
         img_string = img_tag.get('alt')
         if len(img_string) > 2:
             if img_string == 'Blue':
-                img_tag.replace_with('U')
+                img_tag.insert_after('U')
+                img_tag.decompose()
                 continue
             elif img_string == 'Phyrexian':
                 img_tag.replace_with('p')
@@ -99,18 +114,9 @@ def un_img(tag):
     return None
 
 
-def un_box_text(tag):
-    '''Messes with the structure of the BeautifulSouptag so that the
-    formatting comes out right when we replace mana symbols with their
-    appropriate names.'''
-    
-    for box in tag.find_all('div', class_='cardtextbox'):
-        box.replace_with(box.get_text())
-
-
 def un_unpt(pt_tag):
-    '''Replace the image for a half power/toughness into a .5. Only relevant for
-    the un-sets.'''
+    '''turns the image for a half power/toughness into a .5. Only relevant for
+    the un-sets'''
 
     if pt_tag is None:
         return None

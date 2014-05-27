@@ -55,9 +55,9 @@ class MyQueue(queue.Queue):
 
         queue.Queue.task_done(self)
         self.tasks_finished += 1
-        if self.tasks_finished % 1000 == 0:
-            print('Queue size =', self.qsize(),
-                  '| Active Workers Left =', self.worker_count)
+        if self.tasks_finished % 10 == 0:
+            print('\rQueue size =', self.qsize(),
+                  '| Active Workers Left =', self.worker_count, end='')
 
     def stop_making(self):
         '''A call to this function will halt production of new workers. It is
